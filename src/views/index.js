@@ -56,8 +56,10 @@ const CardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   overflow: auto;
-  height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
   margin: 20px 0px;
+  justify-content: center;
+}
 `;
 const EmptyMessage = styled.div`
   display: flex;
@@ -131,7 +133,7 @@ const Main = () => {
             required
             autocomplete="off"
           />
-          <SearchButton type="submit">
+          <SearchButton type="submit" aria-label="search button">
             <StyledFontAwesomeIcon icon={faSearch} size="lg" />
           </SearchButton>
         </StyledForm>
