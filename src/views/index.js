@@ -94,6 +94,7 @@ const Main = () => {
             "GET /users/{username}/gists",
             {
               username: username,
+              per_page: 100,
             }
           );
           if (!cancel) {
@@ -142,16 +143,19 @@ const Main = () => {
         </EmptyMessage>
       ) : gists.length ? (
         <CardContainer>
-          {gists.map(({ id, description, files, owner, html_url }) => (
-            <Card
-              key={id}
-              id={id}
-              description={description}
-              files={files}
-              owner={owner}
-              html_url={html_url}
-            />
-          ))}
+          {gists.map(
+            ({ id, description, files, owner, html_url, forks_url }) => (
+              <Card
+                key={id}
+                id={id}
+                description={description}
+                files={files}
+                owner={owner}
+                html_url={html_url}
+                forks_url={forks_url}
+              />
+            )
+          )}
         </CardContainer>
       ) : username === "" ? (
         <EmptyMessage>{"Enter username to search the gists"}</EmptyMessage>
