@@ -3,6 +3,9 @@ import * as React from "react";
 import styled from "styled-components";
 import { Octokit } from "@octokit/core";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+
 import Card from "./card";
 
 const octokit = new Octokit();
@@ -26,10 +29,14 @@ const EmptyMessage = styled.div`
   color: #5a5959;
   font-size: 20px;
 `;
+const StyledFontAwesomeIcon = styled(FontAwesomeIcon)`
+  margin-right: 20px;
+`;
 const Main = () => {
   const [username, setUsername] = React.useState("");
   const [startSearch, setStartSearch] = React.useState(false);
   const [gists, setGists] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   const handleChange = (event) => {
     setUsername(event.target.value.trim());
@@ -42,7 +49,7 @@ const Main = () => {
   React.useEffect(() => {
     if (startSearch) {
       let cancel = false;
-      setStartSearch(false);
+      setLoading(true);
       async function fetchGists() {
         try {
           const response = await octokit.request(
@@ -53,11 +60,15 @@ const Main = () => {
           );
           if (!cancel) {
             setGists(response.data);
+            setLoading(false);
+            setStartSearch(false);
           }
         } catch (e) {
           console.error(e);
           if (!cancel) {
             setGists([]);
+            setLoading(false);
+            setStartSearch(false);
           }
         }
       }
@@ -66,7 +77,9 @@ const Main = () => {
         cancel = true;
       };
     }
-  }, [startSearch, username]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startSearch]);
+
   return (
     <Container>
       <SearchConatiner>
@@ -83,8 +96,12 @@ const Main = () => {
           <input type="submit" value="Search" />
         </form>
       </SearchConatiner>
-
-      {gists.length ? (
+      {loading ? (
+        <EmptyMessage>
+          <StyledFontAwesomeIcon icon={faSpinner} spin />
+          {"Loading please wait..."}
+        </EmptyMessage>
+      ) : gists.length ? (
         <CardContainer>
           {gists.map(({ id, description, files, owner, html_url }) => (
             <Card
