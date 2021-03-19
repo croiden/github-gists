@@ -24,6 +24,7 @@ const Title = styled.div`
   line-height: 29px;
   text-align: left;
   margin: 10px 0px 0px 20px;
+  word-break: break-all;
 `;
 const Description = styled.div`
   margin: 10px 0px;

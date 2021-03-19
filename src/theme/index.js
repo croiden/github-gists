@@ -13,6 +13,9 @@ export const theme = {
     darkGrey: "#7F8A9C",
     purple: "#652BCF",
   },
+  breakpoints: {
+    mobile: 480,
+  },
 };
 
 type Props = {
