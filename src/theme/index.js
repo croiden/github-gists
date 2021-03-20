@@ -7,11 +7,11 @@ export const theme = {
     primary: "#2B2ECF",
     secondary: "#FF0066",
     white: "#FFFFFF",
-    tagBg: "#F6C937",
+    tagBg: "#40f637",
     grey: "#C5D3E8",
     background: "#E7EDF6",
     darkGrey: "#7F8A9C",
-    purple: "#652BCF",
+    purple: "#5d2bcfb5",
   },
   breakpoints: {
     mobile: 480,
