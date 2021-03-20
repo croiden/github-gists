@@ -1,17 +1,11 @@
 // @flow
 import * as React from "react";
 import styled from "styled-components";
-import { Octokit } from "@octokit/core";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
-import { AUTH } from "../auth/";
-import Card from "./card";
-
-const octokit = new Octokit({
-  auth: AUTH,
-});
+import CardContainer from "./infinitelist";
 
 const Container = styled.div`
   display: flex;
@@ -55,31 +49,12 @@ const SearchButton = styled.button`
     margin: 0px;
   }
 `;
-const CardContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  overflow: auto;
-  max-height: calc(100vh - 120px);
-  margin: 20px 0px;
-  justify-content: center;
-}
-`;
-const EmptyMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 100px;
-  font-style: italic;
-  color: ${(props) => props.theme.colors.darkGrey};
-  font-size: 20px;
-`;
 const StyledFontAwesomeIcon = styled(FontAwesomeIcon)`
   margin-right: 20px;
 `;
 const Main = () => {
   const [username, setUsername] = React.useState("");
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [gists, setGists] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
 
   const handleChange = (event) => {
     const value = event.target.value.trim();
@@ -92,38 +67,6 @@ const Main = () => {
     event.preventDefault();
     username && setSearchQuery(username);
   };
-
-  React.useEffect(() => {
-    if (searchQuery) {
-      let cancel = false;
-      setLoading(true);
-      async function fetchGists() {
-        try {
-          const response = await octokit.request(
-            "GET /users/{username}/gists",
-            {
-              username: searchQuery,
-              per_page: 100,
-            }
-          );
-          if (!cancel) {
-            setGists(response.data);
-            setLoading(false);
-          }
-        } catch (e) {
-          console.error(e);
-          if (!cancel) {
-            setGists([]);
-            setLoading(false);
-          }
-        }
-      }
-      fetchGists();
-      return () => {
-        cancel = true;
-      };
-    }
-  }, [searchQuery]);
 
   return (
     <Container>
@@ -142,31 +85,7 @@ const Main = () => {
           </SearchButton>
         </StyledForm>
       </SearchConatiner>
-      {loading ? (
-        <EmptyMessage>
-          <StyledFontAwesomeIcon icon={faSpinner} spin />
-          {"Loading please wait..."}
-        </EmptyMessage>
-      ) : gists.length ? (
-        <CardContainer>
-          {gists.map(({ id, description, files, owner, html_url }) => (
-            <Card
-              key={id}
-              id={id}
-              description={description}
-              files={files}
-              owner={owner}
-              html_url={html_url}
-            />
-          ))}
-        </CardContainer>
-      ) : searchQuery === "" ? (
-        <EmptyMessage>{"Enter username to search the gists"}</EmptyMessage>
-      ) : gists.length === 0 ? (
-        <EmptyMessage>
-          {"No gists found or incorrect username entered"}
-        </EmptyMessage>
-      ) : null}
+      <CardContainer searchQuery={searchQuery} />
     </Container>
   );
 };

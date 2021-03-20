@@ -86,82 +86,85 @@ type Props = {
 };
 
 const getTitle = (files: Object): string => Object.keys(files)[0];
-const Card = ({ id, description, files, owner, html_url }: Props) => {
-  const [forks, setForks] = React.useState([]);
-  const [totalForks, setTotalForks] = React.useState(0);
-  React.useEffect(() => {
-    let cancel = false;
-    async function fetchGists() {
-      try {
-        const response = await octokit.request("GET /gists/{gist_id}/forks", {
-          gist_id: id,
-          per_page: 100,
-        });
-        if (!cancel) {
-          const respData = response.data;
-          setTotalForks(respData.length);
-          setForks(
-            respData
-              .sort((a, b) =>
-                new Date(a.created_at) > new Date(b.created_at) ? -1 : 0
-              )
-              .splice(0, 3)
-          );
-        }
-      } catch (e) {
-        console.error(e);
-        if (!cancel) {
+// $FlowFixMe
+const Card = React.forwardRef(
+  ({ id, description, files, owner, html_url, ...props }: Props, ref) => {
+    const [forks, setForks] = React.useState([]);
+    const [totalForks, setTotalForks] = React.useState(0);
+    React.useEffect(() => {
+      let cancel = false;
+      async function fetchGists() {
+        try {
+          const response = await octokit.request("GET /gists/{gist_id}/forks", {
+            gist_id: id,
+            per_page: 100,
+          });
+          if (!cancel) {
+            const respData = response.data;
+            setTotalForks(respData.length);
+            setForks(
+              respData
+                .sort((a, b) =>
+                  new Date(a.created_at) > new Date(b.created_at) ? -1 : 0
+                )
+                .splice(0, 3)
+            );
+          }
+        } catch (e) {
+          console.error(e);
+          if (!cancel) {
+          }
         }
       }
-    }
-    fetchGists();
-    return () => {
-      cancel = true;
-    };
-  }, [id]);
-  return (
-    <Container>
-      <Header>
-        <Avatar username={owner.login} url={owner.avatar_url} />
-        <Title>
-          <a href={owner.html_url} target="_blank" rel="noopener noreferrer">
-            {owner.login}
-          </a>
-          {` / `}
-          <a href={html_url} target="_blank" rel="noopener noreferrer">
-            {getTitle(files)}
-          </a>
-        </Title>
-      </Header>
-      <Description data-tip={description}>{description}</Description>
-      <Tags>
-        {Object.keys(files).map(
-          (file, index) =>
-            files[file].language && (
-              <Tag key={index} text={files[file].language} />
-            )
-        )}
-      </Tags>
-      <Footer>
-        {forks.map(({ owner }) => (
-          <StyledAvatar
-            key={owner.id}
-            username={owner.login}
-            url={owner.avatar_url}
-            size={small}
-          />
-        ))}
-        <ForkIcon>
-          <FontAwesomeIcon icon={faCodeBranch} />
-        </ForkIcon>
-        {totalForks < 4 ? (
-          <ForksText>{`${totalForks} forks`}</ForksText>
-        ) : (
-          <ForksText>{`+${totalForks - 3} forks more`}</ForksText>
-        )}
-      </Footer>
-      <ReactTooltip />
-    </Container>
-  );
-};
+      fetchGists();
+      return () => {
+        cancel = true;
+      };
+    }, [id]);
+    return (
+      <Container {...props} ref={ref}>
+        <Header>
+          <Avatar username={owner.login} url={owner.avatar_url} />
+          <Title>
+            <a href={owner.html_url} target="_blank" rel="noopener noreferrer">
+              {owner.login}
+            </a>
+            {` / `}
+            <a href={html_url} target="_blank" rel="noopener noreferrer">
+              {getTitle(files)}
+            </a>
+          </Title>
+        </Header>
+        <Description data-tip={description}>{description}</Description>
+        <Tags>
+          {Object.keys(files).map(
+            (file, index) =>
+              files[file].language && (
+                <Tag key={index} text={files[file].language} />
+              )
+          )}
+        </Tags>
+        <Footer>
+          {forks.map(({ owner }, index) => (
+            <StyledAvatar
+              key={index}
+              username={owner.login}
+              url={owner.avatar_url}
+              size={small}
+            />
+          ))}
+          <ForkIcon>
+            <FontAwesomeIcon icon={faCodeBranch} />
+          </ForkIcon>
+          {totalForks < 4 ? (
+            <ForksText>{`${totalForks} forks`}</ForksText>
+          ) : (
+            <ForksText>{`+${totalForks - 3} forks more`}</ForksText>
+          )}
+        </Footer>
+        <ReactTooltip />
+      </Container>
+    );
+  }
+);
 export default Card;
