@@ -7,10 +7,13 @@ import ReactTooltip from "react-tooltip";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCodeBranch } from "@fortawesome/free-solid-svg-icons";
 
+import { AUTH } from "../../auth/";
 import Tag from "./tag";
 import Avatar, { small } from "../avatar";
 
-const octokit = new Octokit();
+const octokit = new Octokit({
+  auth: AUTH,
+});
 
 const Container = styled.div`
   position: relative;
@@ -80,52 +83,42 @@ type Props = {
   html_url: string,
   files: Object,
   owner: Object,
-  forks_url: string,
 };
 
 const getTitle = (files: Object): string => Object.keys(files)[0];
-const Card = ({
-  id,
-  description,
-  files,
-  owner,
-  html_url,
-  forks_url,
-}: Props) => {
+const Card = ({ id, description, files, owner, html_url }: Props) => {
   const [forks, setForks] = React.useState([]);
   const [totalForks, setTotalForks] = React.useState(0);
   React.useEffect(() => {
-    if (forks_url) {
-      let cancel = false;
-      async function fetchGists() {
-        try {
-          const response = await octokit.request("GET /gists/{gist_id}/forks", {
-            gist_id: id,
-            per_page: 100,
-          });
-          if (!cancel) {
-            const respData = response.data;
-            setTotalForks(respData.length);
-            setForks(
-              respData
-                .sort((a, b) =>
-                  new Date(a.created_at) > new Date(b.created_at) ? -1 : 0
-                )
-                .splice(0, 3)
-            );
-          }
-        } catch (e) {
-          console.error(e);
-          if (!cancel) {
-          }
+    let cancel = false;
+    async function fetchGists() {
+      try {
+        const response = await octokit.request("GET /gists/{gist_id}/forks", {
+          gist_id: id,
+          per_page: 100,
+        });
+        if (!cancel) {
+          const respData = response.data;
+          setTotalForks(respData.length);
+          setForks(
+            respData
+              .sort((a, b) =>
+                new Date(a.created_at) > new Date(b.created_at) ? -1 : 0
+              )
+              .splice(0, 3)
+          );
+        }
+      } catch (e) {
+        console.error(e);
+        if (!cancel) {
         }
       }
-      fetchGists();
-      return () => {
-        cancel = true;
-      };
     }
-  }, [forks_url, id]);
+    fetchGists();
+    return () => {
+      cancel = true;
+    };
+  }, [id]);
   return (
     <Container>
       <Header>

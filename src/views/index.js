@@ -6,9 +6,12 @@ import { Octokit } from "@octokit/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faSearch } from "@fortawesome/free-solid-svg-icons";
 
+import { AUTH } from "../auth/";
 import Card from "./card";
 
-const octokit = new Octokit();
+const octokit = new Octokit({
+  auth: AUTH,
+});
 
 const Container = styled.div`
   display: flex;
@@ -79,10 +82,10 @@ const Main = () => {
   const [loading, setLoading] = React.useState(false);
 
   const handleChange = (event) => {
-    const value = event.target.value.trim()
+    const value = event.target.value.trim();
     setUsername(value);
-    if(!value){
-        setSearchQuery("")
+    if (!value) {
+      setSearchQuery("");
     }
   };
   const handleSubmit = (event) => {
@@ -146,19 +149,16 @@ const Main = () => {
         </EmptyMessage>
       ) : gists.length ? (
         <CardContainer>
-          {gists.map(
-            ({ id, description, files, owner, html_url, forks_url }) => (
-              <Card
-                key={id}
-                id={id}
-                description={description}
-                files={files}
-                owner={owner}
-                html_url={html_url}
-                forks_url={forks_url}
-              />
-            )
-          )}
+          {gists.map(({ id, description, files, owner, html_url }) => (
+            <Card
+              key={id}
+              id={id}
+              description={description}
+              files={files}
+              owner={owner}
+              html_url={html_url}
+            />
+          ))}
         </CardContainer>
       ) : searchQuery === "" ? (
         <EmptyMessage>{"Enter username to search the gists"}</EmptyMessage>
