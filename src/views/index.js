@@ -74,20 +74,24 @@ const StyledFontAwesomeIcon = styled(FontAwesomeIcon)`
 `;
 const Main = () => {
   const [username, setUsername] = React.useState("");
-  const [startSearch, setStartSearch] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
   const [gists, setGists] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
   const handleChange = (event) => {
-    setUsername(event.target.value.trim());
+    const value = event.target.value.trim()
+    setUsername(value);
+    if(!value){
+        setSearchQuery("")
+    }
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    username && setStartSearch(true);
+    username && setSearchQuery(username);
   };
 
   React.useEffect(() => {
-    if (startSearch) {
+    if (searchQuery) {
       let cancel = false;
       setLoading(true);
       async function fetchGists() {
@@ -95,21 +99,19 @@ const Main = () => {
           const response = await octokit.request(
             "GET /users/{username}/gists",
             {
-              username: username,
+              username: searchQuery,
               per_page: 100,
             }
           );
           if (!cancel) {
             setGists(response.data);
             setLoading(false);
-            setStartSearch(false);
           }
         } catch (e) {
           console.error(e);
           if (!cancel) {
             setGists([]);
             setLoading(false);
-            setStartSearch(false);
           }
         }
       }
@@ -118,8 +120,7 @@ const Main = () => {
         cancel = true;
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startSearch]);
+  }, [searchQuery]);
 
   return (
     <Container>
@@ -159,7 +160,7 @@ const Main = () => {
             )
           )}
         </CardContainer>
-      ) : username === "" ? (
+      ) : searchQuery === "" ? (
         <EmptyMessage>{"Enter username to search the gists"}</EmptyMessage>
       ) : gists.length === 0 ? (
         <EmptyMessage>
