@@ -1,6 +1,7 @@
 // @flow
 import * as React from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -53,8 +54,9 @@ const StyledFontAwesomeIcon = styled(FontAwesomeIcon)`
   margin-right: 20px;
 `;
 const Main = () => {
-  const [username, setUsername] = React.useState("");
-  const [searchQuery, setSearchQuery] = React.useState("");
+  let { username: usernameAsParam = "" } = useParams();
+  const [username, setUsername] = React.useState(usernameAsParam);
+  const [searchQuery, setSearchQuery] = React.useState(usernameAsParam);
 
   const handleChange = (event) => {
     const value = event.target.value.trim();
@@ -79,6 +81,7 @@ const Main = () => {
             onChange={handleChange}
             required
             autocomplete="off"
+            defaultValue={usernameAsParam}
           />
           <SearchButton type="submit" aria-label="search button">
             <StyledFontAwesomeIcon icon={faSearch} size="lg" />

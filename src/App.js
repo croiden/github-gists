@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Main from "./views";
 import Theme from "./theme";
 
-// This site has 3 pages, all of which are rendered
+// This site has 2 pages, all of which are rendered
 // dynamically in the browser (not server rendered).
 //
 // Although the page does not ever refresh, notice how
@@ -25,6 +25,11 @@ export default function BasicExample() {
         */}
       <Switch>
         <Route exact path="/">
+          <Theme>
+            <Main />
+          </Theme>
+        </Route>
+        <Route exact path="/search/:username">
           <Theme>
             <Main />
           </Theme>
